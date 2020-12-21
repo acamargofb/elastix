@@ -604,10 +604,6 @@ void
 RecursiveBSplineTransform<TElastix>::CreateTransformParametersMap(const ParametersType & param,
                                                                   ParameterMapType *     paramsMap) const
 {
-  std::ostringstream       tmpStream;
-  std::string              parameterName;
-  std::vector<std::string> parameterValues;
-
   /** Call the CreateTransformParametersMap from the TransformBase. */
   this->Superclass2::CreateTransformParametersMap(param, paramsMap);
 
@@ -616,33 +612,13 @@ RecursiveBSplineTransform<TElastix>::CreateTransformParametersMap(const Paramete
   /** Get the GridSize, GridIndex, GridSpacing,
    * GridOrigin, and GridDirection of this transform.
    */
-  SizeType      size = this->m_BSplineTransform->GetGridRegion().GetSize();
-  IndexType     index = this->m_BSplineTransform->GetGridRegion().GetIndex();
-  SpacingType   spacing = this->m_BSplineTransform->GetGridSpacing();
-  OriginType    origin = this->m_BSplineTransform->GetGridOrigin();
-  DirectionType direction = this->m_BSplineTransform->GetGridDirection();
+  const auto gridRegion = m_BSplineTransform->GetGridRegion();
 
   /** Write the GridSize of this transform. */
-  parameterName = "GridSize";
-  for (unsigned int i = 0; i < SpaceDimension; i++)
-  {
-    tmpStream.str("");
-    tmpStream << size[i];
-    parameterValues.push_back(tmpStream.str());
-  }
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert({ "GridSize", BaseComponent::ToVectorOfStrings(gridRegion.GetSize()) });
 
   /** Write the GridIndex of this transform. */
-  parameterName = "GridIndex";
-  for (unsigned int i = 0; i < SpaceDimension; i++)
-  {
-    tmpStream.str("");
-    tmpStream << index[i];
-    parameterValues.push_back(tmpStream.str());
-  }
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert({ "GridIndex", BaseComponent::ToVectorOfStrings(gridRegion.GetIndex()) });
 
   /** Set the precision of cout to 2, because GridSpacing and
    * GridOrigin must have at least one digit precision.
@@ -650,58 +626,18 @@ RecursiveBSplineTransform<TElastix>::CreateTransformParametersMap(const Paramete
   //  xout["transpar"] << std::setprecision( 10 );
 
   /** Write the GridSpacing of this transform. */
-  parameterName = "GridSpacing";
-  for (unsigned int i = 0; i < SpaceDimension; i++)
-  {
-    tmpStream.str("");
-    tmpStream << spacing[i];
-    parameterValues.push_back(tmpStream.str());
-  }
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert({ "GridSpacing", BaseComponent::ToVectorOfStrings(m_BSplineTransform->GetGridSpacing()) });
 
   /** Write the GridOrigin of this transform. */
-  parameterName = "GridOrigin";
-  for (unsigned int i = 0; i < SpaceDimension; i++)
-  {
-    tmpStream.str("");
-    tmpStream << origin[i];
-    parameterValues.push_back(tmpStream.str());
-  }
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert({ "GridOrigin", BaseComponent::ToVectorOfStrings(m_BSplineTransform->GetGridOrigin()) });
 
   /** Write the GridDirection of this transform. */
-  parameterName = "GridDirection";
-  for (unsigned int i = 0; i < SpaceDimension; i++)
-  {
-    for (unsigned int j = 0; j < SpaceDimension; j++)
-    {
-      tmpStream.str("");
-      tmpStream << direction(j, i);
-      parameterValues.push_back(tmpStream.str());
-    }
-  }
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert({ "GridDirection", BaseComponent::ToVectorOfStrings(m_BSplineTransform->GetGridDirection()) });
 
-  /** Write the spline order and periodicity of this transform. */
-  parameterName = "BSplineTransformSplineOrder";
-  tmpStream.str("");
-  tmpStream << this->m_SplineOrder;
-  parameterValues.push_back(tmpStream.str());
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  /** Write the spline order of this transform. */
+  paramsMap->insert({ "BSplineTransformSplineOrder", { BaseComponent::ToString(m_SplineOrder) } });
 
-  parameterName = "UseCyclicTransform";
-  std::string cyclicString = "false";
-  if (this->m_Cyclic)
-  {
-    cyclicString = "true";
-  }
-  parameterValues.push_back(cyclicString);
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert({ "UseCyclicTransform", { BaseComponent::ToString(this->m_Cyclic) } });
 
   /** Set the precision back to default value. */
   //  xout["transpar"] << std::setprecision(

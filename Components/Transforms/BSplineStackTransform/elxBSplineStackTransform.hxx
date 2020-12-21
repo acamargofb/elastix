@@ -742,10 +742,6 @@ void
 BSplineStackTransform<TElastix>::CreateTransformParametersMap(const ParametersType & param,
                                                               ParameterMapType *     paramsMap) const
 {
-  std::ostringstream       tmpStream;
-  std::string              parameterName;
-  std::vector<std::string> parameterValues;
-
   /** Call the CreateTransformParametersMap from the TransformBase. */
   this->Superclass2::CreateTransformParametersMap(param, paramsMap);
 
@@ -757,99 +753,34 @@ BSplineStackTransform<TElastix>::CreateTransformParametersMap(const ParametersTy
   ReducedDimensionBSplineTransformBasePointer firstSubTransform =
     dynamic_cast<ReducedDimensionBSplineTransformBaseType *>(
       this->m_BSplineStackTransform->GetSubTransform(0).GetPointer());
-  ReducedDimensionSizeType      size = firstSubTransform->GetGridRegion().GetSize();
-  ReducedDimensionIndexType     index = firstSubTransform->GetGridRegion().GetIndex();
-  ReducedDimensionSpacingType   spacing = firstSubTransform->GetGridSpacing();
-  ReducedDimensionOriginType    origin = firstSubTransform->GetGridOrigin();
-  ReducedDimensionDirectionType direction = firstSubTransform->GetGridDirection();
+
+  const auto gridRegion = firstSubTransform->GetGridRegion();
 
   /** Write the GridSize of this transform. */
-  parameterName = "GridSize";
-  for (unsigned int i = 0; i < ReducedSpaceDimension; i++)
-  {
-    tmpStream.str("");
-    tmpStream << size[i];
-    parameterValues.push_back(tmpStream.str());
-  }
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert({ "GridSize", BaseComponent::ToVectorOfStrings(gridRegion.GetSize()) });
 
   /** Write the GridIndex of this transform. */
-  parameterName = "GridIndex";
-  for (unsigned int i = 0; i < ReducedSpaceDimension; i++)
-  {
-    tmpStream.str("");
-    tmpStream << index[i];
-    parameterValues.push_back(tmpStream.str());
-  }
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert({ "GridIndex", BaseComponent::ToVectorOfStrings(gridRegion.GetIndex()) });
 
   /** Write the GridSpacing of this transform.  */
-  parameterName = "GridSpacing";
-  for (unsigned int i = 0; i < ReducedSpaceDimension; i++)
-  {
-    tmpStream.str("");
-    tmpStream << spacing[i];
-    parameterValues.push_back(tmpStream.str());
-  }
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert({ "GridSpacing", BaseComponent::ToVectorOfStrings(firstSubTransform->GetGridSpacing()) });
 
   /** Write the GridOrigin of this transform. */
-  parameterName = "GridOrigin";
-  for (unsigned int i = 0; i < ReducedSpaceDimension; i++)
-  {
-    tmpStream.str("");
-    tmpStream << origin[i];
-    parameterValues.push_back(tmpStream.str());
-  }
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert({ "GridOrigin", BaseComponent::ToVectorOfStrings(firstSubTransform->GetGridOrigin()) });
 
   /** Write the GridDirection of this transform. */
-  parameterName = "GridDirection";
-  for (unsigned int i = 0; i < ReducedSpaceDimension; i++)
-  {
-    for (unsigned int j = 0; j < ReducedSpaceDimension; j++)
-    {
-      tmpStream.str("");
-      tmpStream << direction(j, i);
-      parameterValues.push_back(tmpStream.str());
-    }
-  }
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert({ "GridDirection", BaseComponent::ToVectorOfStrings(firstSubTransform->GetGridDirection()) });
 
   /** Write the spline order of this transform. */
-  parameterName = "BSplineTransformSplineOrder";
-  tmpStream.str("");
-  tmpStream << this->m_SplineOrder;
-  parameterValues.push_back(tmpStream.str());
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert({ "BSplineTransformSplineOrder", { BaseComponent::ToString(m_SplineOrder) } });
 
   /** Write the stack spacing, stack origin and number of sub transforms. */
-  parameterName = "StackSpacing";
-  tmpStream.str("");
-  tmpStream << this->m_BSplineStackTransform->GetStackSpacing();
-  parameterValues.push_back(tmpStream.str());
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert({ "StackSpacing", { BaseComponent::ToString(m_BSplineStackTransform->GetStackSpacing()) } });
 
-  parameterName = "StackOrigin";
-  tmpStream.str("");
-  tmpStream << this->m_BSplineStackTransform->GetStackOrigin();
-  parameterValues.push_back(tmpStream.str());
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert({ "StackOrigin", { BaseComponent::ToString(m_BSplineStackTransform->GetStackOrigin()) } });
 
-  parameterName = "NumberOfSubTransforms";
-  tmpStream.str("");
-  tmpStream << this->m_BSplineStackTransform->GetNumberOfSubTransforms();
-  parameterValues.push_back(tmpStream.str());
-  paramsMap->insert(make_pair(parameterName, parameterValues));
-  parameterValues.clear();
+  paramsMap->insert(
+    { "NumberOfSubTransforms", { BaseComponent::ToString(m_BSplineStackTransform->GetNumberOfSubTransforms()) } });
 
 } // end CreateTransformParametersMap()
 
