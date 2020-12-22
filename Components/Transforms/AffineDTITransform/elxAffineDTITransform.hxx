@@ -143,6 +143,24 @@ AffineDTITransformElastix<TElastix>::WriteToFile(const ParametersType & param) c
 
 
 /**
+ * ************************* CreateTransformParametersMap ************************
+ */
+
+template <class TElastix>
+void
+AffineDTITransformElastix<TElastix>::CreateTransformParametersMap(const ParametersType & param,
+                                                                  ParameterMapType *     paramsMap) const
+{
+  /** Call the CreateTransformParametersMap from the TransformBase. */
+  this->Superclass2::CreateTransformParametersMap(param, paramsMap);
+
+  /** Get the center of rotation point and write it to file. */
+  paramsMap->insert({ "CenterOfRotationPoint", BaseComponent::ToVectorOfStrings(m_AffineDTITransform->GetCenter()) });
+
+} // end CreateTransformParametersMap()
+
+
+/**
  * ************************* InitializeTransform *********************
  */
 
