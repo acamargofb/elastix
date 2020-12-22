@@ -37,8 +37,11 @@
 #endif
 
 #include "itkMacro.h" // itkTypeMacroNoParent
+#include "itkMatrix.h"
 
 #include <string>
+#include <vector>
+#include <type_traits> // For is_integral and is_same.
 
 /** All elastix components should be in namespace elastix. */
 namespace elastix
@@ -165,6 +168,78 @@ public:
   {
     return arg ? "true" : "false";
   }
+
+  /** Convenience function overload to convert a Boolean to a text string. */
+  static std::string
+  ToString(const bool arg)
+  {
+    return BoolToString(arg);
+  }
+
+  /** Convenience function overload to convert a floating point to a text string. */
+  static std::string
+  ToString(const double scalar)
+  {
+    std::ostringstream stringStream;
+    stringStream << scalar;
+    return stringStream.str();
+  }
+
+  /** Convenience function overload to convert an integer to a text string. */
+  template <typename TScalarValue>
+  static std::string
+  ToString(const TScalarValue scalar)
+  {
+    static_assert(std::is_integral<TScalarValue>::value, "An integer type expected!");
+    static_assert(!std::is_same<TScalarValue, bool>::value, "No bool expected!");
+    return std::to_string(scalar);
+  }
+
+
+  /** Convenience function overload to convert a container to a vector of
+   * text strings. The container may be an itk::Size, itk::Index,
+   * itk::Point<double,N>, or itk::Vector<double,N>.
+   *
+   * The C++ SFINAE idiom is being used to ensure that the argument type
+   * supports standard C++ iteration.
+   */
+  template <typename TContainer, typename SFINAE = typename TContainer::iterator>
+  static std::vector<std::string>
+  ToVectorOfStrings(const TContainer & container)
+  {
+    std::vector<std::string> result;
+
+    // Note: Uses TContainer::Dimension instead of container.size(),
+    // because itk::FixedArray::size() is not yet included with ITK 5.1.1.
+    result.reserve(TContainer::Dimension);
+
+    for (const auto element : container)
+    {
+      result.push_back(BaseComponent::ToString(element));
+    }
+    return result;
+  }
+
+  /** Convenience function overload to convert a 2-D matrix to a vector of
+   * text strings. Typically used for an itk::ImageBase::DirectionType.
+   */
+  template <typename T, unsigned int NRows, unsigned int NColumns>
+  static std::vector<std::string>
+  ToVectorOfStrings(const itk::Matrix<T, NRows, NColumns> & matrix)
+  {
+    std::vector<std::string> result;
+    result.reserve(NColumns * NRows);
+
+    for (unsigned column{}; column < NColumns; ++column)
+    {
+      for (unsigned row{}; row < NRows; ++row)
+      {
+        result.push_back(BaseComponent::ToString(matrix(row, column)));
+      }
+    }
+    return result;
+  }
+
 
 protected:
   BaseComponent() = default;
