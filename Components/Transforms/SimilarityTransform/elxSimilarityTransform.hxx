@@ -135,6 +135,24 @@ SimilarityTransformElastix<TElastix>::WriteToFile(const ParametersType & param) 
 
 
 /**
+ * ************************* CreateTransformParametersMap ************************
+ */
+
+template <class TElastix>
+void
+SimilarityTransformElastix<TElastix>::CreateTransformParametersMap(const ParametersType & param,
+                                                                   ParameterMapType *     paramsMap) const
+{
+  /** Call the CreateTransformParametersMap from the TransformBase. */
+  this->Superclass2::CreateTransformParametersMap(param, paramsMap);
+
+  /** Get the center of rotation point and write it to file. */
+  paramsMap->insert({ "CenterOfRotationPoint", BaseComponent::ToVectorOfStrings(m_SimilarityTransform->GetCenter()) });
+
+} // end CreateTransformParametersMap()
+
+
+/**
  * ************************* InitializeTransform *********************
  */
 
